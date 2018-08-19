@@ -19,7 +19,8 @@ use ::sys::socket::addr::sys_control::SysControlAddr;
           target_os = "linux",
           target_os = "macos",
           target_os = "netbsd",
-          target_os = "openbsd"))]
+          target_os = "openbsd",
+          target_os = "solaris"))]
 pub use self::datalink::LinkAddr;
 
 /// These constants specify the protocol family to be used
@@ -93,12 +94,13 @@ pub enum AddressFamily {
     Can = libc::AF_CAN,
     #[cfg(any(target_os = "android", target_os = "linux"))]
     Tipc = libc::AF_TIPC,
-    #[cfg(not(any(target_os = "ios", target_os = "macos")))]
+    #[cfg(not(any(target_os = "ios", target_os = "macos", target_os = "solaris")))]
     Bluetooth = libc::AF_BLUETOOTH,
     #[cfg(any(target_os = "android", target_os = "linux"))]
     Iucv = libc::AF_IUCV,
     #[cfg(any(target_os = "android", target_os = "linux"))]
     RxRpc = libc::AF_RXRPC,
+    #[cfg(not(target_os = "solaris"))]
     Isdn = libc::AF_ISDN,
     #[cfg(any(target_os = "android", target_os = "linux"))]
     Phonet = libc::AF_PHONET,
@@ -1208,7 +1210,8 @@ mod datalink {
           target_os = "ios",
           target_os = "macos",
           target_os = "netbsd",
-          target_os = "openbsd"))]
+          target_os = "openbsd",
+          target_os = "solaris"))]
 mod datalink {
     use super::{libc, hash, fmt, AddressFamily};
 
@@ -1292,7 +1295,8 @@ mod datalink {
                   target_os = "ios",
                   target_os = "macos",
                   target_os = "netbsd",
-                  target_os = "openbsd"))]
+                  target_os = "openbsd",
+                  target_os = "solaris"))]
         fn eq(&self, other: &Self) -> bool {
             let (a, b) = (self.0, other.0);
             (a.sdl_len, a.sdl_family, a.sdl_index, a.sdl_type,
@@ -1316,7 +1320,8 @@ mod datalink {
                   target_os = "ios",
                   target_os = "macos",
                   target_os = "netbsd",
-                  target_os = "openbsd"))]
+                  target_os = "openbsd",
+                  target_os = "solaris"))]
         fn hash<H: hash::Hasher>(&self, s: &mut H) {
             let a = self.0;
             (a.sdl_len, a.sdl_family, a.sdl_index, a.sdl_type,

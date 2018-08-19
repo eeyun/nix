@@ -30,6 +30,7 @@ libc_bitflags!(
         /// Open the file in append-only mode.
         O_APPEND;
         /// Generate a signal when input or output becomes possible.
+	#[cfg(not(target_os = "solaris"))]
         O_ASYNC;
         /// Closes the file descriptor once an `execve` call is made.
         ///
@@ -45,6 +46,7 @@ libc_bitflags!(
                   target_os = "netbsd"))]
         O_DIRECT;
         /// If the specified path isn't a directory, fail.
+	#[cfg(not(target_os = "solaris"))]
         O_DIRECTORY;
         /// Implicitly follow each `write()` with an `fdatasync()`.
         #[cfg(any(target_os = "android",
@@ -57,7 +59,7 @@ libc_bitflags!(
         /// Error out if a file was not created.
         O_EXCL;
         /// Open for execute only.
-        #[cfg(target_os = "freebsd")]
+        #[cfg(any(target_os = "freebsd", target_os = "solaris"))]
         O_EXEC;
         /// Open with an exclusive file lock.
         #[cfg(any(target_os = "dragonfly",
@@ -77,7 +79,7 @@ libc_bitflags!(
                   target_os = "openbsd"))]
         O_FSYNC;
         /// Allow files whose sizes can't be represented in an `off_t` to be opened.
-        #[cfg(any(target_os = "android", target_os = "linux"))]
+        #[cfg(any(target_os = "android", target_os = "linux", target_os = "solaris"))]
         O_LARGEFILE;
         /// Do not update the file last access time during `read(2)`s.
         #[cfg(any(target_os = "android", target_os = "linux"))]
@@ -107,10 +109,10 @@ libc_bitflags!(
         /// This should not be combined with `O_WRONLY` or `O_RDWR`.
         O_RDWR;
         /// Similar to `O_DSYNC` but applies to `read`s instead.
-        #[cfg(any(target_os = "linux", target_os = "netbsd", target_os = "openbsd"))]
+        #[cfg(any(target_os = "linux", target_os = "netbsd", target_os = "openbsd", target_os = "solaris"))]
         O_RSYNC;
         /// Skip search permission checks.
-        #[cfg(target_os = "netbsd")]
+        #[cfg(any(target_os = "netbsd", target_os = "solaris"))]
         O_SEARCH;
         /// Open with a shared file lock.
         #[cfg(any(target_os = "dragonfly",

@@ -1,7 +1,6 @@
 //! Create master and slave virtual pseudo-terminals (PTYs)
 
 use libc;
-
 pub use libc::pid_t as SessionId;
 pub use libc::winsize as Winsize;
 

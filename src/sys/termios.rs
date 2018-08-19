@@ -89,10 +89,10 @@
 //!
 // FIXME: Replace `ignore` with `compile_fail` once 1.22 is the minimum support Rust version
 #![cfg_attr(any(target_os = "freebsd", target_os = "dragonfly", target_os = "ios",
-                target_os = "macos", target_os = "netbsd", target_os = "openbsd"),
+                target_os = "macos", target_os = "netbsd", target_os = "openbsd", target_os = "solaris"),
             doc = " ```rust,ignore")]
 #![cfg_attr(not(any(target_os = "freebsd", target_os = "dragonfly", target_os = "ios",
-                    target_os = "macos", target_os = "netbsd", target_os = "openbsd")),
+                    target_os = "macos", target_os = "netbsd", target_os = "openbsd", target_os = "solaris")),
             doc = " ```rust")]
 //! # extern crate nix;
 //! # use nix::sys::termios::{BaudRate, cfgetispeed, cfgetospeed, cfsetspeed, Termios};
@@ -108,10 +108,10 @@
 //!
 // FIXME: Replace `ignore` with `compile_fail` once 1.22 is the minimum support Rust version
 #![cfg_attr(any(target_os = "freebsd", target_os = "dragonfly", target_os = "ios",
-                target_os = "macos", target_os = "netbsd", target_os = "openbsd"),
+                target_os = "macos", target_os = "netbsd", target_os = "openbsd", target_os = "solaris"),
             doc = " ```rust")]
 #![cfg_attr(not(any(target_os = "freebsd", target_os = "dragonfly", target_os = "ios",
-                    target_os = "macos", target_os = "netbsd", target_os = "openbsd")),
+                    target_os = "macos", target_os = "netbsd", target_os = "openbsd", target_os = "solaris")),
             doc = " ```rust,ignore")]
 //! # extern crate nix;
 //! # use nix::sys::termios::{BaudRate, cfgetispeed, cfgetospeed, cfsetspeed, Termios};
@@ -127,10 +127,10 @@
 //!
 // FIXME: Replace `ignore` with `compile_fail` once 1.22 is the minimum support Rust version
 #![cfg_attr(any(target_os = "freebsd", target_os = "dragonfly", target_os = "ios",
-                target_os = "macos", target_os = "netbsd", target_os = "openbsd"),
+                target_os = "macos", target_os = "netbsd", target_os = "openbsd", target_os = "solaris"),
             doc = " ```rust")]
 #![cfg_attr(not(any(target_os = "freebsd", target_os = "dragonfly", target_os = "ios",
-                    target_os = "macos", target_os = "netbsd", target_os = "openbsd")),
+                    target_os = "macos", target_os = "netbsd", target_os = "openbsd", target_os = "solaris")),
             doc = " ```rust,ignore")]
 //! # extern crate nix;
 //! # use nix::sys::termios::{BaudRate, cfgetispeed, cfsetspeed, Termios};
@@ -147,10 +147,10 @@
 //!
 // FIXME: Replace `ignore` with `compile_fail` once 1.22 is the minimum support Rust version
 #![cfg_attr(any(target_os = "freebsd", target_os = "dragonfly", target_os = "ios",
-                target_os = "macos", target_os = "netbsd", target_os = "openbsd"),
+                target_os = "macos", target_os = "netbsd", target_os = "openbsd", target_os = "solaris"),
             doc = " ```rust")]
 #![cfg_attr(not(any(target_os = "freebsd", target_os = "dragonfly", target_os = "ios",
-                    target_os = "macos", target_os = "netbsd", target_os = "openbsd")),
+                    target_os = "macos", target_os = "netbsd", target_os = "openbsd", target_os = "solaris")),
             doc = " ```rust,ignore")]
 //! # extern crate nix;
 //! # use nix::sys::termios::{cfsetispeed, cfsetospeed, cfsetspeed, Termios};
@@ -312,7 +312,11 @@ libc_enum!{
         B600,
         B1200,
         B1800,
+	#[cfg(target_os = "solaris")]
+	B2000,
         B2400,
+	#[cfg(target_os = "solaris")]
+	B3600,
         B4800,
         #[cfg(any(target_os = "dragonfly",
                 target_os = "freebsd",
@@ -340,14 +344,20 @@ libc_enum!{
                 target_os = "freebsd",
                 target_os = "macos",
                 target_os = "netbsd",
-                target_os = "openbsd"))]
+                target_os = "openbsd",
+                target_os = "solaris"))]
         B76800,
         B115200,
+	#[cfg(target_os = "solaris")]
+        B153600,
         B230400,
+	#[cfg(target_os = "solaris")]
+	B307200,
         #[cfg(any(target_os = "android",
                   target_os = "freebsd",
                   target_os = "linux",
-                  target_os = "netbsd"))]
+                  target_os = "netbsd",
+                  target_os = "solaris"))]
         B460800,
         #[cfg(any(target_os = "android", target_os = "linux"))]
         B500000,
@@ -356,7 +366,8 @@ libc_enum!{
         #[cfg(any(target_os = "android",
                   target_os = "freebsd",
                   target_os = "linux",
-                  target_os = "netbsd"))]
+                  target_os = "netbsd",
+                  target_os = "solaris"))]
         B921600,
         #[cfg(any(target_os = "android", target_os = "linux"))]
         B1000000,
@@ -394,8 +405,11 @@ impl From<libc::speed_t> for BaudRate {
         #[cfg(any(target_os = "android",
                   target_os = "freebsd",
                   target_os = "linux",
-                  target_os = "netbsd"))]
+                  target_os = "netbsd",
+                  target_os = "solaris"))]
         use libc::{B460800, B921600};
+	#[cfg(target_os = "solaris")]
+	use libc::{B2000, B3600, B7200, B153600, B307200, B76800};
 
         match s {
             B0 => BaudRate::B0,
@@ -409,13 +423,18 @@ impl From<libc::speed_t> for BaudRate {
             B600 => BaudRate::B600,
             B1200 => BaudRate::B1200,
             B1800 => BaudRate::B1800,
+	    #[cfg(target_os = "solaris")]
+            B2000 => BaudRate::B2000,
             B2400 => BaudRate::B2400,
+	    #[cfg(target_os = "solaris")]
+            B3600 => BaudRate::B3600,
             B4800 => BaudRate::B4800,
             #[cfg(any(target_os = "dragonfly",
                       target_os = "freebsd",
                       target_os = "macos",
                       target_os = "netbsd",
-                      target_os = "openbsd"))]
+                      target_os = "openbsd",
+                      target_os = "solaris"))]
             B7200 => BaudRate::B7200,
             B9600 => BaudRate::B9600,
             #[cfg(any(target_os = "dragonfly",
@@ -437,14 +456,20 @@ impl From<libc::speed_t> for BaudRate {
                       target_os = "freebsd",
                       target_os = "macos",
                       target_os = "netbsd",
-                      target_os = "openbsd"))]
+                      target_os = "openbsd",
+                      target_os = "solaris"))]
             B76800 => BaudRate::B76800,
             B115200 => BaudRate::B115200,
+	    #[cfg(target_os = "solaris")]
+            B153600 => BaudRate::B153600,
             B230400 => BaudRate::B230400,
+	    #[cfg(target_os = "solaris")]
+            B307200 => BaudRate::B307200,
             #[cfg(any(target_os = "android",
                       target_os = "freebsd",
                       target_os = "linux",
-                      target_os = "netbsd"))]
+                      target_os = "netbsd",
+                      target_os = "solaris"))]
             B460800 => BaudRate::B460800,
             #[cfg(any(target_os = "android", target_os = "linux"))]
             B500000 => BaudRate::B500000,
@@ -453,7 +478,8 @@ impl From<libc::speed_t> for BaudRate {
             #[cfg(any(target_os = "android",
                       target_os = "freebsd",
                       target_os = "linux",
-                      target_os = "netbsd"))]
+                      target_os = "netbsd",
+                      target_os = "solaris"))]
             B921600 => BaudRate::B921600,
             #[cfg(any(target_os = "android", target_os = "linux"))]
             B1000000 => BaudRate::B1000000,
@@ -482,7 +508,8 @@ impl From<libc::speed_t> for BaudRate {
           target_os = "ios",
           target_os = "macos",
           target_os = "netbsd",
-          target_os = "openbsd"))]
+          target_os = "openbsd",
+          target_os = "solaris"))]
 impl From<BaudRate> for u32 {
     fn from(b: BaudRate) -> u32 {
         b as u32
@@ -547,7 +574,8 @@ libc_enum! {
                 target_os = "freebsd",
                 target_os = "macos",
                 target_os = "netbsd",
-                target_os = "openbsd"))]
+                target_os = "openbsd",
+                target_os = "solaris"))]
         VDSUSP,
         VEOF,
         VEOL,
@@ -558,6 +586,7 @@ libc_enum! {
         VINTR,
         VKILL,
         VLNEXT,
+        #[cfg(not(target_os = "solaris"))]
         VMIN,
         VQUIT,
         VREPRINT,
@@ -566,14 +595,16 @@ libc_enum! {
                 target_os = "freebsd",
                 target_os = "macos",
                 target_os = "netbsd",
-                target_os = "openbsd"))]
+                target_os = "openbsd",
+                target_os = "solaris"))]
         VSTATUS,
         VSTOP,
         VSUSP,
         #[cfg(target_os = "linux")]
         VSWTC,
-        #[cfg(target_os = "haiku")]
+        #[cfg(any(target_os = "haiku", target_os = "solaris"))]
         VSWTCH,
+        #[cfg(not(target_os = "solaris"))]
         VTIME,
         VWERASE,
         #[cfg(target_os = "dragonfly")]
@@ -587,7 +618,8 @@ pub use libc::NCCS;
           target_os = "linux",
           target_os = "macos",
           target_os = "netbsd",
-          target_os = "openbsd"))]
+          target_os = "openbsd",
+          target_os = "solaris"))]
 pub use libc::_POSIX_VDISABLE;
 
 libc_bitflags! {
@@ -608,6 +640,10 @@ libc_bitflags! {
         IMAXBEL;
         #[cfg(any(target_os = "android", target_os = "linux", target_os = "macos"))]
         IUTF8;
+	#[cfg(target_os = "solaris")]
+	IUCLC;
+	#[cfg(target_os = "solaris")]
+	DOSMODE;
     }
 }
 
@@ -628,113 +664,131 @@ libc_bitflags! {
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         OFILL as tcflag_t;
         #[cfg(any(target_os = "android",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         OFDEL as tcflag_t;
         #[cfg(any(target_os = "android",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         NL0 as tcflag_t;
         #[cfg(any(target_os = "android",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         NL1 as tcflag_t;
         #[cfg(any(target_os = "android",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         CR0 as tcflag_t;
         #[cfg(any(target_os = "android",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         CR1 as tcflag_t;
         #[cfg(any(target_os = "android",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         CR2 as tcflag_t;
         #[cfg(any(target_os = "android",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         CR3 as tcflag_t;
         #[cfg(any(target_os = "android",
                   target_os = "freebsd",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         TAB0 as tcflag_t;
         #[cfg(any(target_os = "android",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         TAB1 as tcflag_t;
         #[cfg(any(target_os = "android",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         TAB2 as tcflag_t;
         #[cfg(any(target_os = "android",
                   target_os = "freebsd",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         TAB3 as tcflag_t;
-        #[cfg(any(target_os = "android", target_os = "linux"))]
+        #[cfg(any(target_os = "android", target_os = "linux", target_os = "solaris"))]
         XTABS;
         #[cfg(any(target_os = "android",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         BS0 as tcflag_t;
         #[cfg(any(target_os = "android",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         BS1 as tcflag_t;
         #[cfg(any(target_os = "android",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         VT0 as tcflag_t;
         #[cfg(any(target_os = "android",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         VT1 as tcflag_t;
         #[cfg(any(target_os = "android",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         FF0 as tcflag_t;
         #[cfg(any(target_os = "android",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         FF1 as tcflag_t;
         #[cfg(any(target_os = "freebsd",
                   target_os = "dragonfly",
@@ -758,38 +812,44 @@ libc_bitflags! {
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         NLDLY as tcflag_t; // FIXME: Datatype needs to be corrected in libc for mac
         #[cfg(any(target_os = "android",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         CRDLY as tcflag_t;
         #[cfg(any(target_os = "android",
                   target_os = "freebsd",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         TABDLY as tcflag_t;
         #[cfg(any(target_os = "android",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         BSDLY as tcflag_t;
         #[cfg(any(target_os = "android",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         VTDLY as tcflag_t;
         #[cfg(any(target_os = "android",
                   target_os = "haiku",
                   target_os = "ios",
                   target_os = "linux",
-                  target_os = "macos"))]
+                  target_os = "macos",
+                  target_os = "solaris"))]
         FFDLY as tcflag_t;
     }
 }
@@ -815,16 +875,22 @@ libc_bitflags! {
         HUPCL;
         CLOCAL;
         CRTSCTS;
-        #[cfg(any(target_os = "android", target_os = "linux"))]
+        #[cfg(target_os = "solaris")]
+	CRTSXOFF;
+        #[cfg(any(target_os = "android", target_os = "linux", target_os = "solaris"))]
         CBAUD;
         #[cfg(any(target_os = "android", all(target_os = "linux", not(target_arch = "mips"))))]
         CMSPAR;
-        #[cfg(any(target_os = "android",
+        #[cfg(any(target_os = "android", target_os = "solaris",
                   all(target_os = "linux",
                       not(any(target_arch = "powerpc", target_arch = "powerpc64")))))]
         CIBAUD;
+        #[cfg(target_os = "solaris")]
+        CIBAUDEXT;
         #[cfg(any(target_os = "android", target_os = "linux"))]
         CBAUDEX;
+        #[cfg(target_os = "solaris")]
+        CBAUDEXT;
         #[cfg(any(target_os = "dragonfly",
                   target_os = "freebsd",
                   target_os = "macos",
@@ -836,12 +902,14 @@ libc_bitflags! {
         #[cfg(any(target_os = "dragonfly",
                   target_os = "freebsd",
                   target_os = "netbsd",
-                  target_os = "openbsd"))]
+                  target_os = "openbsd",
+                  target_os = "solaris"))]
         CCTS_OFLOW;
         #[cfg(any(target_os = "dragonfly",
                   target_os = "freebsd",
                   target_os = "netbsd",
-                  target_os = "openbsd"))]
+                  target_os = "openbsd",
+                  target_os = "solaris"))]
         CRTS_IFLOW;
         #[cfg(any(target_os = "dragonfly",
                   target_os = "freebsd"))]
@@ -858,6 +926,8 @@ libc_bitflags! {
         // is resolved.
 
         CSIZE;
+        #[cfg(target_os = "solaris")]
+	LOBLK;
     }
 }
 
@@ -881,6 +951,7 @@ libc_bitflags! {
                   target_os = "openbsd"))]
         ALTWERASE;
         IEXTEN;
+	#[cfg(not(target_os = "solaris"))]
         EXTPROC;
         TOSTOP;
         FLUSHO;
@@ -893,6 +964,10 @@ libc_bitflags! {
         NOKERNINFO;
         PENDIN;
         NOFLSH;
+        #[cfg(target_os = "solaris")]
+	DEFECHO;
+        #[cfg(target_os = "solaris")]
+	XCASE;
     }
 }
 
@@ -902,7 +977,8 @@ cfg_if!{
                  target_os = "ios",
                  target_os = "macos",
                  target_os = "netbsd",
-                 target_os = "openbsd"))] {
+                 target_os = "openbsd",
+                 target_os = "solaris"))] {
         /// Get input baud rate (see
         /// [cfgetispeed(3p)](http://pubs.opengroup.org/onlinepubs/9699919799/functions/cfgetispeed.html)).
         ///
